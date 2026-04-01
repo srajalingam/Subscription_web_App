@@ -1,0 +1,11 @@
+# Ignore temporary directories and build artifacts
+**/tmp/
+*.exe
+*.log
+*.out
+
+# Ignore editor and system files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
