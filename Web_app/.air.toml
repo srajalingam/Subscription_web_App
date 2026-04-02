@@ -1,0 +1,19 @@
+# .air.toml for running from repository root
+# docs: https://github.com/cosmtrek/air
+
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o tmp/bin/webserver.exe ./cmd/web"
+  bin = "tmp/bin/webserver.exe"
+  include_ext = ["go", "tpl", "tmpl", "html", "css", "js","gohtml"]
+  exclude_dir = ["tmp", "vendor"]
+
+[log]
+  time = true
+  color = true
+
+[runtime]
+  include_ext = ["go", "tpl", "tmpl", "html", "css", "js"]
+  exclude_dir = ["tmp", "vendor"]
