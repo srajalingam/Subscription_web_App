@@ -38,7 +38,48 @@
 {{define "js"}}
     <script src="https://js.stripe.com/v3/"></script>
     <script>
+    let card;
+    let stripe;
+    stripe = Stripe('');
     function chargeCard() {
+        
     }
+    (function() {
+        const elements = stripe.elements();
+        const style = {
+            base: {
+                color: '#32325d',
+                fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                fontSmoothing: 'antialiased',
+                fontSize: '16px',
+                '::placeholder': {
+                    color: '#aab7c4'
+                }
+            },
+            invalid: {
+                color: '#fa755a',
+                iconColor: '#fa755a'
+            }
+        };
+        card = elements.create('card',{
+            style: style,
+            hidePostalCode: true
+        });
+        card.mount('#card-element');
+        // input errors
+
+        card.addEventListener('change', function(event) {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.classList.remove('d-none');
+                displayError.textContent = event.error.message;
+                displaySuccess.textContent = '';
+            } else {
+                displayError.classList.add('d-none');
+                displayError.textContent = '';
+            }
+        });
+
+    })();
     </script>
 {{end}}
