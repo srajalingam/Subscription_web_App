@@ -1,2 +1,4 @@
 github.com/go-chi/chi/v5 v5.2.5 h1:Eg4myHZBjyvJmAFjFvWgrqDTXFyOzjj7YIm3L3mu6Ug=
 github.com/go-chi/chi/v5 v5.2.5/go.mod h1:X7Gx4mteadT3eDOMTsXzmI4/rwUpOwBHLpAfupzFJP0=
+github.com/stripe/stripe-go/v85 v85.0.0 h1:HMlFJXW6I/9WvkeSAtj8V7dI5pzeDu4gS1TaqR1ccI4=
+github.com/stripe/stripe-go/v85 v85.0.0/go.mod h1:5P+HGFenpWgak27T5Is6JMsmDfUC1yJnjhhmquz7kXw=

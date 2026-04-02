@@ -52,16 +52,24 @@
     const cardMessages = document.getElementById('card-messages');
     const payButton = document.getElementById('pay-button');
     const processingPayment = document.getElementById('processing-payment');
-    stripe = Stripe('');
+    stripe = Stripe('pk_test_51NSkWISHlCTWachh0vE1GoIeYrPPVUx82GET732XwZLAfxqVdhFDZEPpIr43oLSTnUPwSniwoq0X0ZP8JTbI1eHk00xiBPaMIE');
+    
+    function hidePayButton() {
+        payButton.classList.add('d-none');
+        processingPayment.classList.remove('d-none');
+    }
+    
     function chargeCard() {
+     this.event.preventDefault();
+            this.event.stopPropagation();
         let form = document.getElementById('charge-form');
         if(form.checkValidity() === false) {
-            this.event.preventDefault();
-            this.event.stopPropagation();
+           
            form.classList.add('was-validated');
            return;
         }
         form.classList.remove('was-validated');
+        hidePayButton();
     }
     (function() {
         const elements = stripe.elements();
