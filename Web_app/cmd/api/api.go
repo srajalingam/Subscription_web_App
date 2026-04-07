@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 const version = "1.0.0"
@@ -45,6 +47,11 @@ func (app *application) serve() error {
 	return srv.ListenAndServe()
 }
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println(err)
+		log.Println("No .env file found")
+	}
 	var cfg config
 	flag.IntVar(&cfg.port, "port", 4001, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
@@ -64,7 +71,7 @@ func main() {
 		version:  version,
 	}
 
-	err := app.serve()
+	err = app.serve()
 	if err != nil {
 		app.errorLog.Fatal(err)
 	}

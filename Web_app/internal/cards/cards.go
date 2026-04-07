@@ -1,4 +1,4 @@
-package card
+package cards
 
 import (
 	"github.com/stripe/stripe-go/v85"
@@ -29,10 +29,21 @@ func (c *Card) CreatePaymentIntent(currency string, amount int) (*stripe.Payment
 	//creat a payment intent
 
 	params := &stripe.PaymentIntentParams{
-		Amount:   stripe.Int64(int64(amount)),
-		Currency: stripe.String(currency),
+		Amount:      stripe.Int64(int64(amount)),
+		Currency:    stripe.String(currency),
+		Description: stripe.String("Payment for XYZ service"),
 	}
 	//params.AddMetadata("integration_check", "accept_a_payment")
+
+	params.Shipping = &stripe.ShippingDetailsParams{
+		Name: stripe.String("John Doe"),
+		Address: &stripe.AddressParams{
+			Line1:      stripe.String("Street 1"),
+			City:       stripe.String("New York"),
+			Country:    stripe.String("US"), // 🔥 MUST be non-India
+			PostalCode: stripe.String("10001"),
+		},
+	}
 
 	pi, err := paymentintent.New(params)
 	if err != nil {
