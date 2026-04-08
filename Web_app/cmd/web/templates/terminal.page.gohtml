@@ -138,6 +138,7 @@
                                 document.getElementById('payment-currency').value = result.paymentIntent.currency;
                                 processingPayment.classList.add('d-none');
                                showCardSuccess();
+                               document.getElementById('charge-form').submit();
                             }
                         }
                     });

@@ -20,6 +20,5 @@ func (app *application) routes() http.Handler {
 	}))
 
 	mux.Post("/api/payment_intent", app.GetPaymentIntent)
-
 	return mux
 }
