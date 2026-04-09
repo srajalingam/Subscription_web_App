@@ -6,17 +6,21 @@
 
 {{define "content"}}
 
+{{$widget := index .Data "widget"}}
 <h2 class="text-2xl font-bold mb-4">Buy Once</h2>
 
 <hr>
+<div class="alert alert-danger text-center d-none" role="alert" id="card-messages"></div>
 <img src="/static/widget.png" alt="Widget" class="w-64 mb-4 image-fluid rounded mx-auto d-block">
 
     <div class="d-flex justify-content-center">
         <form method="POST" action="/payment-succeeded" class="w-50 needs-validation " id="charge-form" novalidate="novalidate" autocomplete="off">
-            <div class="mb-3">
-                <label for="amount" class="form-label">Amount</label>
-                <input type="text" class="form-control" id="amount" name="amount" placeholder="e.g., 10.00" required>
-            </div>
+            <input type="hidden" name="product_id"  value="{{$widget.ID}}">
+            <input type="hidden" name="amount" id="amount"  value="{{$widget.Price}}">
+
+            <h3 class="text-xl font-bold mb-2 text-center">{{$widget.Name}} : ${{ formatCurrency $widget.Price }}</h3> 
+            <p>{{$widget.Description}}</p>
+            <hr>
             <div class="mb-3">
                 <label for="cardHolderName" class="form-label">Card holder name</label>
                 <input type="text" class="form-control" id="cardHolderName" name="cardHolderName" placeholder="e.g., John Doe" required>

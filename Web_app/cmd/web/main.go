@@ -58,7 +58,7 @@ func main() {
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 	flag.StringVar(&cfg.db.dsn, "dsn", "web:pass@/web?parseTime=true", "MySQL DSN")
-	flag.StringVar(&cfg.api, "api", "http://localhost:4000", "API server URL")
+	flag.StringVar(&cfg.api, "api", "http://localhost:4001", "API server URL")
 
 	flag.Parse()
 
@@ -71,6 +71,8 @@ func main() {
 
 	// cfg.stripe.key = os.Getenv("STRIPE_KEY")
 	cfg.stripe.secretKey = os.Getenv("STRIPE_SECRET")
+
+	cfg.api = os.Getenv("API")
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.LUTC|log.Lshortfile)

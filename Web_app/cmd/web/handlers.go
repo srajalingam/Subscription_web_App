@@ -8,12 +8,12 @@ import (
 func (app *application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
 	//app.infoLog.Println("Virtual Terminal")
 
-	td := &templateData{
-		StringMap: map[string]string{
-			"StripePublishableKey": app.config.stripe.key,
-		},
-	}
-
+	// td := &templateData{
+	// 	StringMap: map[string]string{
+	// 		"StripePublishableKey": app.config.stripe.key,
+	// 	},
+	// }
+	td := &templateData{}
 	if err := app.renderTemplate(w, r, "terminal", td, "stripe-js"); err != nil {
 		app.errorLog.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -51,11 +51,12 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 }
 
 func (app *application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
-	td := &templateData{
-		StringMap: map[string]string{
-			"StripePublishableKey": app.config.stripe.key,
-		},
-	}
+	// td := &templateData{
+	// 	StringMap: map[string]string{
+	// 		"StripePublishableKey": app.config.stripe.key,
+	// 	},
+	// }
+	td := &templateData{}
 	widget := models.Widget{
 		ID:             1,
 		Name:           "Test Widget",
