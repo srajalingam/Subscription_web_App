@@ -11,7 +11,7 @@ func (app *application) VirtualTerminal(w http.ResponseWriter, r *http.Request) 
 		},
 	}
 
-	if err := app.renderTemplate(w, r, "terminal", td); err != nil {
+	if err := app.renderTemplate(w, r, "terminal", td, "stripe-js"); err != nil {
 		app.errorLog.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
@@ -48,7 +48,12 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 }
 
 func (app *application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
-	if err := app.renderTemplate(w, r, "buy-once", &templateData{}); err != nil {
+	td := &templateData{
+		StringMap: map[string]string{
+			"StripePublishableKey": app.config.stripe.key,
+		},
+	}
+	if err := app.renderTemplate(w, r, "buy-once", td, "stripe-js"); err != nil {
 		app.errorLog.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}

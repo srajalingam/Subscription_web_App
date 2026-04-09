@@ -11,4 +11,44 @@
 <hr>
 <img src="/static/widget.png" alt="Widget" class="w-64 mb-4 image-fluid rounded mx-auto d-block">
 
+    <div class="d-flex justify-content-center">
+        <form method="POST" action="/payment-succeeded" class="w-50 needs-validation " id="charge-form" novalidate="novalidate" autocomplete="off">
+            <div class="mb-3">
+                <label for="amount" class="form-label">Amount</label>
+                <input type="text" class="form-control" id="amount" name="amount" placeholder="e.g., 10.00" required>
+            </div>
+            <div class="mb-3">
+                <label for="cardHolderName" class="form-label">Card holder name</label>
+                <input type="text" class="form-control" id="cardHolderName" name="cardHolderName" placeholder="e.g., John Doe" required>
+            </div>
+            <div class="mb-3">
+                <label for="cardHolderEmail" class="form-label">Card holder email</label>
+                <input type="email" class="form-control" id="cardHolderEmail" name="cardHolderEmail" placeholder="e.g., john.doe@example.com" required>
+            </div>
+            <div class="mb-3">
+                <label for="card-element" class="form-label">Credit card</label>
+                <div id="card-element" class="form-control">
+                    <!-- Stripe Card Element will be inserted here -->
+                </div>
+                <div id="card-errors" role="alert" class="text-danger mt-2 text-center"></div>
+                <div id="card-success" role="alert" class="text-success mt-2 text-center"></div>
+            </div>
+            <hr>
+            <button id="pay-button" type="submit" class="btn btn-primary w-100" onclick="chargeCard()">Charge Card</button>
+            <div id="processing-payment" class="text-center d-none">
+            
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Processing...</span>
+                </div>
+
+            </div>
+            <input type="hidden" name="payment_intent" id="payment-intent">
+            <input type="hidden" name="payment_method" id="payment-method">
+            <input type="hidden" name="payment_amount" id="payment-amount">
+            <input type="hidden" name="payment_currency" id="payment-currency">
+        </form>
+    </div>
+{{end}}
+{{define "js"}}
+{{template "stripe-js" .}} 
 {{end}}
