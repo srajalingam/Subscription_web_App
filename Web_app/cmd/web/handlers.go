@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+	"web_app/internal/models"
+)
 
 func (app *application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
 	//app.infoLog.Println("Virtual Terminal")
@@ -53,6 +56,16 @@ func (app *application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
 			"StripePublishableKey": app.config.stripe.key,
 		},
 	}
+	widget := models.Widget{
+		ID:             1,
+		Name:           "Test Widget",
+		Description:    "This is a test widget",
+		InventortLevel: 10,
+		Price:          1999,
+	}
+	data := make(map[string]interface{})
+	data["widget"] = widget
+	td.Data = data
 	if err := app.renderTemplate(w, r, "buy-once", td, "stripe-js"); err != nil {
 		app.errorLog.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
