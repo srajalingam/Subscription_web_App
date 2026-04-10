@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strconv"
 	"web_app/internal/cards"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type stripePayload struct {
@@ -72,4 +74,26 @@ func (app *application) GetPaymentIntent(w http.ResponseWriter, r *http.Request)
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(out)
 	}
+}
+
+func (app *application) GetWidgetByID(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	widgetID, _ := strconv.Atoi(id)
+
+	widget, err := app.DB.GetWidgets(widgetID)
+
+	if err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Unable to get widget", http.StatusInternalServerError)
+		return
+	}
+	out, err := json.MarshalIndent(widget, "", "  ")
+	if err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
 }

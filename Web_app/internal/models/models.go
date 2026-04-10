@@ -1,6 +1,10 @@
 package models
 
-import "database/sql"
+import (
+	"context"
+	"database/sql"
+	"time"
+)
 
 // DBModel is the wrapper for sql.DB connection pool
 type DBModel struct {
@@ -19,7 +23,7 @@ func NewModels(db *sql.DB) Model {
 	}
 }
 
-//widget is the type for the widget table in the database
+// widget is the type for the widget table in the database
 type Widget struct {
 	ID             int    `json:"id"`
 	Name           string `json:"name"`
@@ -28,4 +32,17 @@ type Widget struct {
 	Price          int    `json:"price"`
 	CreatedAt      string `json:"-"`
 	UpdatedAt      string `json:"-"`
+}
+
+func (m *DBModel) GetWidgets(id int) (Widget, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var widgets Widget
+	rows := m.DB.QueryRowContext(ctx, "SELECT id, name FROM widgets WHERE id = ?", id)
+	err := rows.Scan(&widgets.ID, &widgets.Name)
+	if err != nil {
+		return widgets, err
+	}
+	return widgets, nil
 }

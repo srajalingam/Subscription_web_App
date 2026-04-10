@@ -1,12 +1,16 @@
 package main
 
 import (
+	_ "github.com/go-sql-driver/mysql"
+
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
+	"web_app/internal/driver"
+	"web_app/internal/models"
 
 	"github.com/joho/godotenv"
 )
@@ -31,6 +35,7 @@ type application struct {
 	infoLog  *log.Logger
 	errorLog *log.Logger
 	version  string
+	DB       models.DBModel
 }
 
 func (app *application) serve() error {
@@ -55,6 +60,7 @@ func main() {
 	var cfg config
 	flag.IntVar(&cfg.port, "port", 4001, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
+	flag.StringVar(&cfg.db.dsn, "dsn", os.Getenv("DATABASE_DSN"), "MySQL DSN")
 
 	flag.Parse()
 
@@ -64,11 +70,18 @@ func main() {
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.LUTC|log.Lshortfile)
 
+	conn, err := driver.OpenDB(cfg.db.dsn)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	defer conn.Close()
+
 	app := &application{
 		config:   cfg,
 		infoLog:  infoLog,
 		errorLog: errorLog,
 		version:  version,
+		DB:       models.DBModel{DB: conn},
 	}
 
 	err = app.serve()
