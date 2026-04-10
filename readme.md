@@ -12,3 +12,11 @@ go get -u github.com/go-chi/chi/v5
 
 reference link
 https://docs.stripe.com/testing
+
+
+//Dumb db insert using 
+go install github.com/gobuffalo/soda@latest
+
+navigate to 
+S C:\RAJA-MY-Folder\Learning_Section\GoLang\Udemy\Subscription_web_App\migrations>
+     ->soda migrate

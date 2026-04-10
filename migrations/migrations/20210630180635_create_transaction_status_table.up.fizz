@@ -1,0 +1,14 @@
+create_table("transaction_statuses") {
+    t.Column("id", "integer", {"primary": true})
+    t.Column("name", "string", {"null": false})
+    t.Timestamps()
+}
+
+sql("ALTER TABLE transaction_statuses MODIFY created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;")
+sql("ALTER TABLE transaction_statuses MODIFY updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;")
+
+sql("insert into transaction_statuses (name) values ('Pending');")
+sql("insert into transaction_statuses (name) values ('Cleared');")
+sql("insert into transaction_statuses (name) values ('Declined');")
+sql("insert into transaction_statuses (name) values ('Refunded');")
+sql("insert into transaction_statuses (name) values ('Partially refunded');")
