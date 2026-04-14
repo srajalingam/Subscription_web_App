@@ -2,7 +2,9 @@ package main
 
 import (
 	"net/http"
-	"web_app/internal/models"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func (app *application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
@@ -57,12 +59,23 @@ func (app *application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
 	// 	},
 	// }
 	td := &templateData{}
-	widget := models.Widget{
-		ID:             1,
-		Name:           "Test Widget",
-		Description:    "This is a test widget",
-		InventortLevel: 10,
-		Price:          1999,
+	// widget := models.Widget{
+	// 	ID:             1,
+	// 	Name:           "Test Widget",
+	// 	Description:    "This is a test widget",
+	// 	InventortLevel: 10,
+	// 	Price:          1999,
+	// }
+	id := chi.URLParam(r, "id")
+
+	widgetID, _ := strconv.Atoi(id)
+
+	widget, err := app.DB.GetWidgets(widgetID)
+
+	if err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Unable to get widget", http.StatusInternalServerError)
+		return
 	}
 	data := make(map[string]interface{})
 	data["widget"] = widget

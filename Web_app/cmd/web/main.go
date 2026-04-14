@@ -59,9 +59,9 @@ func main() {
 	var cfg config
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
-	flag.StringVar(&cfg.db.dsn, "dsn", "web:pass@/web?parseTime=true", "MySQL DSN")
+	flag.StringVar(&cfg.db.dsn, "dsn", os.Getenv("DATABASE_DSN"), "MySQL DSN")
 	flag.StringVar(&cfg.api, "api", "http://localhost:4001", "API server URL")
-
+	log.Println(os.Getenv("DATABASE_DSN"))
 	flag.Parse()
 
 	err := godotenv.Load()
@@ -75,6 +75,8 @@ func main() {
 	cfg.stripe.secretKey = os.Getenv("STRIPE_SECRET")
 
 	cfg.api = os.Getenv("API")
+
+	cfg.db.dsn = os.Getenv("DATABASE_DSN")
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.LUTC|log.Lshortfile)
