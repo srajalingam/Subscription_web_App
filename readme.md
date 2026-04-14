@@ -20,3 +20,9 @@ go install github.com/gobuffalo/soda@latest
 navigate to 
 S C:\RAJA-MY-Folder\Learning_Section\GoLang\Udemy\Subscription_web_App\migrations>
      ->soda migrate
+
+Reference https://gobuffalo.io/documentation/database/fizz/
+
+
+To create any fizz file through poweshell then below ways we can create
+C:\RAJA-MY-Folder\Learning_Section\GoLang\Udemy\Subscription_web_App\migrations> soda generate fizz addimagetowidgets addimagetowidgets
