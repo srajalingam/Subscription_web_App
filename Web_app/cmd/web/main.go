@@ -72,7 +72,7 @@ func main() {
 	cfg.stripe.key = os.Getenv("STRIPE_PUBLISHABLE_KEY")
 
 	// cfg.stripe.key = os.Getenv("STRIPE_KEY")
-	cfg.stripe.secretKey = os.Getenv("STRIPE_SECRET")
+	cfg.stripe.secretKey = os.Getenv("STRIPE_SECRET_KEY")
 
 	cfg.api = os.Getenv("API")
 

@@ -4,11 +4,11 @@
     let card;
     let stripe;
     let apiURL;
+    let secretKey;
     const cardMessages = document.getElementById('card-messages');
     const payButton = document.getElementById('pay-button');
     const processingPayment = document.getElementById('processing-payment');
     stripe = Stripe("{{.StripePublishableKey}}");
-    console.log(stripe._apiKey);
     function hidePayButton() {
         payButton.classList.add('d-none');
         processingPayment.classList.remove('d-none');
@@ -50,20 +50,20 @@
         form.classList.remove('was-validated');
         hidePayButton();
 
-        let amountToCharge = String(parseFloat(document.getElementById('amount').value) * 100);
+        let amountToCharge = document.getElementById('amount').value;
         //  console.log(amountToCharge);
         let payload = {
             amount: amountToCharge,
             currency: 'cad',
 
         };
-        console.log(stripe._apiKey);
+        console.log(secretKey);
         const requestOptions = {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                "authorization": "Bearer " + `${stripe._apiKey}`
+                {{/* "authorization": "Bearer " + `${secretKey}` */}}
             },
             body: JSON.stringify(payload)
         };
@@ -92,7 +92,7 @@
                         } else {
                             // The payment has been processed!
                             if (result.paymentIntent.status === 'succeeded') {
-                                document.getElementById('payment-method').value = result.paymentIntent.payment_method_types[0];
+                                document.getElementById('payment-method').value = result.paymentIntent.payment_method;
                                 document.getElementById('payment-intent').value = result.paymentIntent.id;
                                 document.getElementById('payment-amount').value = result.paymentIntent.amount;
                                 document.getElementById('payment-currency').value = result.paymentIntent.currency;
