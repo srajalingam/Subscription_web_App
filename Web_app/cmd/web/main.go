@@ -11,12 +11,15 @@ import (
 	"web_app/internal/driver"
 	"web_app/internal/models"
 
+	"github.com/alexedwards/scs/v2"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
 
 const version = "1.0.0"
 const cssVersion = "1.0.0"
+
+var session *scs.SessionManager
 
 type config struct {
 	port int
@@ -38,6 +41,7 @@ type application struct {
 	templateCache map[string]*template.Template
 	version       string
 	DB            models.DBModel
+	Session       *scs.SessionManager
 }
 
 func (app *application) serve() error {
@@ -87,6 +91,10 @@ func main() {
 	}
 	defer conn.Close()
 
+	// Create a new session manager and configure it.
+	session = scs.New()
+	session.Lifetime = 24 * time.Hour
+
 	tc := make(map[string]*template.Template)
 
 	app := &application{
@@ -96,6 +104,7 @@ func main() {
 		templateCache: tc,
 		version:       version,
 		DB:            models.DBModel{DB: conn},
+		Session:       session,
 	}
 
 	err = app.serve()
