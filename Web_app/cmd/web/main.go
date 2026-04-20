@@ -60,7 +60,7 @@ func (app *application) serve() error {
 }
 
 func main() {
-	gob.Register(map[string]interface{}{})
+	gob.Register(TransactionData{})
 	// Initialize a new instance of the config struct.
 	var cfg config
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")

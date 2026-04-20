@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -34,25 +33,36 @@ func (app *application) VirtualTerminal(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request) {
+type TransactionData struct {
+	FirstName       string
+	LastName        string
+	Email           string
+	PaymentIntentID string
+	PaymentMethodID string
+	PaymentAmount   int
+	PaymentCurrency string
+	LastFour        string
+	ExpiryMonth     int
+	ExpiryYear      int
+	BankReturnCode  string
+}
+
+// GetRTransactionData retrieves transaction data from the request form and returns a TransactionData struct
+func (app *application) GetTransactionData(r *http.Request) (TransactionData, error) {
+	var txnData TransactionData
 	err := r.ParseForm()
 	if err != nil {
 		app.errorLog.Println(err)
-		return
+		return txnData, err
 	}
-
-	//read posted data
 	firstName := r.Form.Get("firstName")
 	lastName := r.Form.Get("lastName")
 	email := r.Form.Get("cardHolderEmail")
-	cardHolder := r.Form.Get("cardHolderName")
 	paymentIntent := r.Form.Get("payment_intent")
 	paymentMethod := r.Form.Get("payment_method")
 	paymentAmount := r.Form.Get("payment_amount")
 	paymentCurrency := r.Form.Get("payment_currency")
-	widgetId, _ := strconv.Atoi(r.Form.Get("product_id"))
-
-	app.infoLog.Printf("Payment succeeded for widget ID: %d", widgetId)
+	amount, _ := strconv.Atoi(paymentAmount)
 
 	card := cards.Card{
 		Secret: app.config.stripe.secretKey,
@@ -63,22 +73,55 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 
 	if err != nil {
 		app.errorLog.Println(err)
-		return
+		return txnData, err
 	}
 
 	pm, err := card.GetPaymentMethod(paymentMethod)
 	if err != nil {
 		app.errorLog.Println(err)
-		return
+		return txnData, err
 	}
 
 	lastFour := pm.Card.Last4
 	expiryMonth := pm.Card.ExpMonth
 	expiryYear := pm.Card.ExpYear
 
+	txnData = TransactionData{
+		FirstName:       firstName,
+		LastName:        lastName,
+		Email:           email,
+		PaymentIntentID: paymentIntent,
+		PaymentMethodID: paymentMethod,
+		PaymentAmount:   amount,
+		PaymentCurrency: paymentCurrency,
+		LastFour:        lastFour,
+		ExpiryMonth:     int(expiryMonth),
+		ExpiryYear:      int(expiryYear),
+		BankReturnCode:  pi.ID,
+	}
+	return txnData, nil
+}
+
+func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+
+	//read posted data
+	widgetId, _ := strconv.Atoi(r.Form.Get("product_id"))
+	txnData, err := app.GetTransactionData(r)
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+
+	app.infoLog.Printf("Payment succeeded for widget ID: %d", widgetId)
+
 	//create a new cutomer in our database
 
-	customerId, err := app.SaveCustormer(firstName, lastName, email)
+	customerId, err := app.SaveCustormer(txnData.FirstName, txnData.LastName, txnData.Email)
 	if err != nil {
 		app.errorLog.Println(err)
 		return
@@ -86,16 +129,15 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 	app.infoLog.Printf("Customer created with ID: %d", customerId)
 
 	//save the transaction in our database
-	amount, _ := strconv.Atoi(paymentAmount)
 	txn := models.Transaction{
-		Amount:              amount,
-		Currency:            paymentCurrency,
-		LastFour:            lastFour,
-		ExpiryMonth:         int(expiryMonth),
-		ExpiryYear:          int(expiryYear),
-		BankReturnCode:      pi.ID,
-		PaymentIntent:       paymentIntent,
-		PaymentMethod:       paymentMethod,
+		Amount:              txnData.PaymentAmount,
+		Currency:            txnData.PaymentCurrency,
+		LastFour:            txnData.LastFour,
+		ExpiryMonth:         txnData.ExpiryMonth,
+		ExpiryYear:          txnData.ExpiryYear,
+		BankReturnCode:      txnData.BankReturnCode,
+		PaymentIntent:       txnData.PaymentIntentID,
+		PaymentMethod:       txnData.PaymentMethodID,
 		TransactionStatusID: 2, // Assuming 2 represents a successful transaction status
 	}
 	txnId, err := app.SaveTransaction(txn)
@@ -111,7 +153,7 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		CustomerId:    customerId,
 		StatusID:      1, // Assuming 1 represents a new order status
 		Quantity:      1,
-		Amount:        amount,
+		Amount:        txnData.PaymentAmount,
 		CreatedAt:     strconv.FormatInt(time.Now().Unix(), 10),
 		UpdatedAt:     strconv.FormatInt(time.Now().Unix(), 10),
 	}
@@ -121,33 +163,16 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	data := make(map[string]interface{})
-	data["cardHolder"] = cardHolder
-	data["email"] = email
-	data["pi"] = paymentIntent
-	data["pm"] = paymentMethod
-	data["pa"] = paymentAmount
-	data["pc"] = paymentCurrency
-	data["last_four"] = lastFour
-	data["expiry_month"] = expiryMonth
-	data["expiry_year"] = expiryYear
-	fmt.Println(pi)
-	data["bank_return_code"] = pi.ID
-	data["first_name"] = firstName
-	data["last_name"] = lastName
-
 	//should write this data to session and redirect to a new page to display the data from session instead of passing it directly to the template
-	app.Session.Put(r.Context(), "reciept", data)
+	app.Session.Put(r.Context(), "reciept", txnData)
 	http.Redirect(w, r, "/reciept", http.StatusSeeOther)
-	// if err := app.renderTemplate(w, r, "succeeded", &templateData{Data: data}); err != nil {
-	// 	app.errorLog.Println(err)
-	// 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	// }
 
 }
 
 func (app *application) Reciept(w http.ResponseWriter, r *http.Request) {
-	data := app.Session.Get(r.Context(), "reciept").(map[string]interface{})
+	txn := app.Session.Get(r.Context(), "reciept").(TransactionData)
+	data := make(map[string]interface{})
+	data["txn"] = txn
 	app.Session.Remove(r.Context(), "reciept")
 	if err := app.renderTemplate(w, r, "reciept", &templateData{Data: data}); err != nil {
 		app.errorLog.Println(err)
