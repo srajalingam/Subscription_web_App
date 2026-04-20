@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"flag"
 	"fmt"
 	"html/template"
@@ -59,6 +60,7 @@ func (app *application) serve() error {
 }
 
 func main() {
+	gob.Register(map[string]interface{}{})
 	// Initialize a new instance of the config struct.
 	var cfg config
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")

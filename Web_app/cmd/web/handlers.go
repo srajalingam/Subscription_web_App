@@ -136,11 +136,23 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 	data["first_name"] = firstName
 	data["last_name"] = lastName
 
-	if err := app.renderTemplate(w, r, "succeeded", &templateData{Data: data}); err != nil {
+	//should write this data to session and redirect to a new page to display the data from session instead of passing it directly to the template
+	app.Session.Put(r.Context(), "reciept", data)
+	http.Redirect(w, r, "/reciept", http.StatusSeeOther)
+	// if err := app.renderTemplate(w, r, "succeeded", &templateData{Data: data}); err != nil {
+	// 	app.errorLog.Println(err)
+	// 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	// }
+
+}
+
+func (app *application) Reciept(w http.ResponseWriter, r *http.Request) {
+	data := app.Session.Get(r.Context(), "reciept").(map[string]interface{})
+	app.Session.Remove(r.Context(), "reciept")
+	if err := app.renderTemplate(w, r, "reciept", &templateData{Data: data}); err != nil {
 		app.errorLog.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
-
 }
 
 // SaveTransaction saves a new transaction to the database and returns the transaction ID
