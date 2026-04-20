@@ -94,6 +94,8 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		ExpiryMonth:         int(expiryMonth),
 		ExpiryYear:          int(expiryYear),
 		BankReturnCode:      pi.ID,
+		PaymentIntent:       paymentIntent,
+		PaymentMethod:       paymentMethod,
 		TransactionStatusID: 2, // Assuming 2 represents a successful transaction status
 	}
 	txnId, err := app.SaveTransaction(txn)
