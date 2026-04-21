@@ -29,7 +29,7 @@ var functions = template.FuncMap{
 }
 
 func formatCurrency(amount int) string {
-	f := float64(amount) / 100
+	f := float64(amount) / float64(100)
 	return fmt.Sprintf("%.2f", f)
 }
 
