@@ -296,9 +296,16 @@ func (app *application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) BronzePlan(w http.ResponseWriter, r *http.Request) {
-	intMap := make(map[string]int)
-	intMap["plan_id"] = 1
-	if err := app.renderTemplate(w, r, "bronze-plan", &templateData{IntMap: intMap}, "stripe-js"); err != nil {
+	widget, err := app.DB.GetWidgets(2) // Assuming 2 is the plan ID for the Bronze Plan
+	if err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Unable to get widget", http.StatusInternalServerError)
+		return
+	}
+	data := make(map[string]interface{})
+	data["widget"] = widget
+
+	if err := app.renderTemplate(w, r, "bronze-plan", &templateData{Data: data}); err != nil {
 		app.errorLog.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
