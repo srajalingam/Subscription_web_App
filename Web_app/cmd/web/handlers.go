@@ -294,3 +294,12 @@ func (app *application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
+
+func (app *application) BronzePlan(w http.ResponseWriter, r *http.Request) {
+	intMap := make(map[string]int)
+	intMap["plan_id"] = 1
+	if err := app.renderTemplate(w, r, "bronze-plan", &templateData{IntMap: intMap}, "stripe-js"); err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}

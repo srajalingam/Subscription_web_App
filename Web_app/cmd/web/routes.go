@@ -19,6 +19,8 @@ func (app *application) routes() http.Handler {
 	mux.Get("/reciept", app.Reciept)
 	mux.Get("/widget/{id}", app.ChargeOnce)
 
+	mux.Get("/plans/bronze", app.BronzePlan)
+
 	fileServer := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
