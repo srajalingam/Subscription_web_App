@@ -169,12 +169,61 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 
 }
 
+func (app *application) VirtualTerminalPaymentSucceeded(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+
+	//read posted data
+	txnData, err := app.GetTransactionData(r)
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+
+	//save the transaction in our database
+	txn := models.Transaction{
+		Amount:              txnData.PaymentAmount,
+		Currency:            txnData.PaymentCurrency,
+		LastFour:            txnData.LastFour,
+		ExpiryMonth:         txnData.ExpiryMonth,
+		ExpiryYear:          txnData.ExpiryYear,
+		BankReturnCode:      txnData.BankReturnCode,
+		PaymentIntent:       txnData.PaymentIntentID,
+		PaymentMethod:       txnData.PaymentMethodID,
+		TransactionStatusID: 2, // Assuming 2 represents a successful transaction status
+	}
+	_, err = app.SaveTransaction(txn)
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+	//should write this data to session and redirect to a new page to display the data from session instead of passing it directly to the template
+	app.Session.Put(r.Context(), "reciept", txnData)
+	http.Redirect(w, r, "/virtual-terminal-reciept", http.StatusSeeOther)
+
+}
+
 func (app *application) Reciept(w http.ResponseWriter, r *http.Request) {
 	txn := app.Session.Get(r.Context(), "reciept").(TransactionData)
 	data := make(map[string]interface{})
 	data["txn"] = txn
 	app.Session.Remove(r.Context(), "reciept")
 	if err := app.renderTemplate(w, r, "reciept", &templateData{Data: data}); err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func (app *application) VirtualTerminalReciept(w http.ResponseWriter, r *http.Request) {
+	txn := app.Session.Get(r.Context(), "reciept").(TransactionData)
+	app.infoLog.Printf("Transaction data: %+v", txn)
+	data := make(map[string]any)
+	data["txn"] = txn
+	app.Session.Remove(r.Context(), "reciept")
+	if err := app.renderTemplate(w, r, "virtual-terminal-reciept", &templateData{Data: data}); err != nil {
 		app.errorLog.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}

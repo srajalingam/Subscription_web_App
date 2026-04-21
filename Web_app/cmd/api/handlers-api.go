@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"web_app/internal/cards"
@@ -32,6 +33,8 @@ func (app *application) GetPaymentIntent(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Unable to decode json", http.StatusBadRequest)
 		return
 	}
+
+	fmt.Println(payload)
 
 	amount, err := strconv.Atoi(payload.Amount)
 

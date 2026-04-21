@@ -10,7 +10,7 @@
     <div class="alert alert-danger text-center d-none" role="alert" id="card-messages"></div>
 
     <div class="d-flex justify-content-center">
-        <form method="POST" action="/payment-succeeded" class="w-50 needs-validation " id="charge-form" novalidate="novalidate" autocomplete="off">
+        <form method="POST" action="/virtual-terminal-payment-succeeded" class="w-50 needs-validation " id="charge-form" novalidate="novalidate" autocomplete="off">
             <div class="mb-3">
                 <label for="charge_amount" class="form-label">Amount</label>
                 <input type="text" class="form-control" id="charge_amount" name="charge_amount" placeholder="e.g., 10.00" required>
@@ -51,9 +51,9 @@
 
 {{define "js"}}
 <script>
-    document.getElementById('charge_amount',function(evt){
+    document.getElementById('charge_amount').addEventListener('change', function(evt){
         if(evt.target.value!==""){
-            document.getElementById("amount").value = evt.target.value*100
+            document.getElementById("amount").value = parseInt(evt.target.value*100, 10)
         }else{
              document.getElementById("amount").value = 0
         }
