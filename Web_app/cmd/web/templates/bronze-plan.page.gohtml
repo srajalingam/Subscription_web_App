@@ -46,7 +46,7 @@
                 <div id="card-success" role="alert" class="text-success mt-2 text-center"></div>
             </div>
             <hr>
-            <button id="pay-button" type="submit" class="btn btn-primary w-100" onclick="chargeCard()">Pay ${{ formatCurrency $widget.Price }}/month</button>
+            <button id="pay-button" type="button" class="btn btn-primary w-100" onclick="val()">Pay ${{ formatCurrency $widget.Price }}/month</button>
             <div id="processing-payment" class="text-center d-none">
             
                 <div class="spinner-border text-primary" role="status">
@@ -176,7 +176,7 @@
             const requestOptions = {
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify(payload)
