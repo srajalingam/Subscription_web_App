@@ -116,6 +116,25 @@ func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 	}
 	app.infoLog.Println(data)
 
+	card := cards.Card{
+		Secret:   app.config.stripe.secretKey,
+		Key:      app.config.stripe.key,
+		Currency: data.Currency,
+	}
+
+	stripeCustomer, err := card.CreateCustomer(data.PaymentMethod, data.Email)
+
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+
+	subscriptionId, err := card.SubscribeToPlan(stripeCustomer, data.Plan, data.Email, data.LastFour, "")
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+	app.infoLog.Printf("Subscription ID: %s", subscriptionId.ID)
 	okay := true
 	msg := ""
 
