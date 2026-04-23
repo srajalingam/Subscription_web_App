@@ -193,6 +193,13 @@
             .then(response => {
                 console.log(response);
                 processingPayment.classList.add('d-none');
+                showCardSuccess();
+                sessionStorage.first_name = payload.first_name;
+                sessionStorage.last_name = payload.last_name;
+                sessionStorage.amount = "{{ formatCurrency $widget.Price }}";
+                sessionStorage.plan = "{{$widget.Name}}";
+                sessionStorage.last_four = payload.last_four;
+                location.href = "/receipt/bronze";
             })
         }
     }
