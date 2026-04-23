@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 	"web_app/internal/cards"
+	"web_app/internal/models"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/stripe/stripe-go/v85"
 )
 
 type stripePayload struct {
@@ -15,8 +18,14 @@ type stripePayload struct {
 	Amount        string `json:"amount"`
 	PaymentMethod string `json:"payment_method"`
 	Email         string `json:"email"`
+	CradBrand     string `json:"card_brand"`
+	ExpireMonth   int    `json:"exp_month"`
+	ExpireYear    int    `json:"exp_year"`
 	LastFour      string `json:"last_four"`
 	Plan          string `json:"plan"`
+	ProductID     string `json:"product_id"`
+	FirstName     string `json:"first_name"`
+	LastName      string `json:"last_name"`
 }
 
 type jsonResponse struct {
@@ -122,25 +131,78 @@ func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 		Currency: data.Currency,
 	}
 
+	okay := true
+	var subscription *stripe.Subscription
+	txnMsg := "Transaction successful"
+
 	stripeCustomer, err := card.CreateCustomer(data.PaymentMethod, data.Email)
 
 	if err != nil {
 		app.errorLog.Println(err)
+		okay = false
+		txnMsg = "Unable to create customer"
 		return
+	}
+	if okay {
+		subscription, err = card.SubscribeToPlan(stripeCustomer, data.Plan, data.Email, data.LastFour, "")
+		if err != nil {
+			app.errorLog.Println(err)
+			txnMsg = "Unable to subscribe to plan"
+			okay = false
+		}
+		app.infoLog.Printf("Subscription ID: %s", subscription.ID)
 	}
 
-	subscriptionId, err := card.SubscribeToPlan(stripeCustomer, data.Plan, data.Email, data.LastFour, "")
-	if err != nil {
-		app.errorLog.Println(err)
-		return
+	if okay {
+		productId, _ := strconv.Atoi(data.ProductID)
+		customerID, err := app.SaveCustormer(data.FirstName, data.LastName, data.Email)
+		if err != nil {
+			txnMsg = "Unable to save customer to database"
+			app.errorLog.Println(err)
+			return
+		}
+
+		// create a new txn
+		amount, _ := strconv.Atoi(data.Amount)
+		txn := models.Transaction{
+			Amount:              amount,
+			Currency:            "card",
+			LastFour:            data.LastFour,
+			ExpiryMonth:         data.ExpireMonth,
+			ExpiryYear:          data.ExpireYear,
+			TransactionStatusID: 2,
+		}
+		taxID, err := app.SaveTransaction(txn)
+		if err != nil {
+			txnMsg = "Unable to save transaction to database"
+			app.errorLog.Println(err)
+			return
+		}
+
+		//create order
+		order := models.Order{
+			WidgetID:      productId,
+			TransactionID: taxID,
+			CustomerId:    customerID,
+			StatusID:      1,
+			Quantity:      1,
+			Amount:        amount,
+			CreatedAt:     time.Now().Format(time.RFC3339),
+			UpdatedAt:     time.Now().Format(time.RFC3339),
+		}
+
+		_, err = app.SaveOrder(order)
+		if err != nil {
+			app.errorLog.Println(err)
+			txnMsg = "Unable to save order to database"
+			return
+		}
+
 	}
-	app.infoLog.Printf("Subscription ID: %s", subscriptionId.ID)
-	okay := true
-	msg := ""
 
 	resp := jsonResponse{
 		OK:      okay,
-		Message: msg,
+		Message: txnMsg,
 		Content: "",
 	}
 
@@ -154,4 +216,36 @@ func (app *application) CreateCustomerAndSubscribeToPlan(w http.ResponseWriter, 
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
+}
+
+// SaveCustomer saves a new customer to the database and returns the customer ID
+func (app *application) SaveCustormer(firstName, lastName, email string) (int, error) {
+	customer := models.Customer{
+		FirstName: firstName,
+		LastName:  lastName,
+		Email:     email,
+	}
+	customerId, err := app.DB.InsertCustomer(customer)
+	if err != nil {
+		return 0, err
+	}
+	return customerId, nil
+}
+
+// SaveTransaction saves a new transaction to the database and returns the transaction ID
+func (app *application) SaveTransaction(txn models.Transaction) (int, error) {
+	transactionId, err := app.DB.InsertTransaction(txn)
+	if err != nil {
+		return 0, err
+	}
+	return transactionId, nil
+}
+
+// SaveOrder saves a new order to the database and returns the order ID
+func (app *application) SaveOrder(order models.Order) (int, error) {
+	orderId, err := app.DB.InsertOrder(order)
+	if err != nil {
+		return 0, err
+	}
+	return orderId, nil
 }
