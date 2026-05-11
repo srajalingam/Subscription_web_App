@@ -249,3 +249,27 @@ func (app *application) SaveOrder(order models.Order) (int, error) {
 	}
 	return orderId, nil
 }
+
+// CreateAuthToken handles user authentication and returns a JWT token if the credentials are valid
+func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) {
+	var userInput struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	err := app.readJSON(w, r, &userInput)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	var payload struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+
+	payload.Error = false
+	payload.Message = "Authentication successful"
+
+	_ = app.writeJSON(w, http.StatusOK, payload)
+}

@@ -4,8 +4,12 @@ go run .\cmd\web\
 
 go get -u github.com/stripe/stripe-go/v85
 
+//frontend
+PS C:\RAJA-MY-Folder\Learning_Section\GoLang\Udemy\Subscription_web_App\Web_app> air
 
 backend
+
+C:\RAJA-MY-Folder\Learning_Section\GoLang\Udemy\Subscription_web_App\Web_app\cmd\api> go run .
 
 go get -u github.com/go-chi/chi/v5
 
