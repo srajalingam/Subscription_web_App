@@ -1,0 +1,41 @@
+{{template "base" .}}
+
+{{define "title"}}
+    Login
+{{end}}
+
+{{define "content"}}
+    <form method="POST" action="" class="w-50 needs-validation " id="charge-form" novalidate="novalidate" autocomplete="off">
+           
+            <h2 class="text-xl font-bold mb-2 text-center">Login</h2> 
+            <hr>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="e.g., john.doe@example.com" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            
+            <hr>
+            <button type="submit" class="btn btn-primary w-100" onclick="val()">Login</button>
+        </form>
+{{end}}
+
+{{define "js"}}
+
+<script>
+    function val() {
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+
+        if (!emailInput.value || !passwordInput.value) {
+            alert('Please fill in both email and password fields.');
+            return false; // Prevent form submission
+        }
+        return true; // Allow form submission
+    }
+</script>
+
+{{end}}
