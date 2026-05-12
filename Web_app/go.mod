@@ -11,4 +11,5 @@ require (
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/stripe/stripe-go/v85 v85.0.0 // indirect
+	golang.org/x/crypto v0.51.0
 )

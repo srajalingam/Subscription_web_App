@@ -5,6 +5,8 @@ import (
 	"errors"
 	"io"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // writeJSON is a helper method for writing JSON response
@@ -80,4 +82,18 @@ func (app *application) invalidCredentialsResponse(w http.ResponseWriter, r *htt
 		return err
 	}
 	return nil
+}
+
+// passwordMatches is a helper method for checking if the password matches
+func (app *application) passwordMatches(hash, password string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	if err != nil {
+		switch {
+		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
+			return false, nil
+		default:
+			return false, err
+		}
+	}
+	return true, nil
 }
