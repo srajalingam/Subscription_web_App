@@ -63,3 +63,21 @@ func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Reques
 	w.Write(out)
 	return nil
 }
+
+// invalidCredentialsResponse is a helper method for sending JSON response when the credentials are invalid
+func (app *application) invalidCredentialsResponse(w http.ResponseWriter, r *http.Request) error {
+	var payload struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+	payload.Error = true
+	payload.Message = "Invalid credentials"
+
+	err := app.writeJSON(w, http.StatusUnauthorized, payload)
+	if err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Unable to marshal json", http.StatusInternalServerError)
+		return err
+	}
+	return nil
+}
