@@ -36,3 +36,7 @@ go get github.com/alexedwards/scs/v2
 
 
 soda generate fizz CreateTokensTable CreateTokensTable
+
+login usename
+admin@example.com
+password
