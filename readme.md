@@ -33,3 +33,6 @@ C:\RAJA-MY-Folder\Learning_Section\GoLang\Udemy\Subscription_web_App\migrations>
 
 session management
 go get github.com/alexedwards/scs/v2
+
+
+soda generate fizz CreateTokensTable CreateTokensTable
