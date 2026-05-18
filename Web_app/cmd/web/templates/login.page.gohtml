@@ -5,6 +5,8 @@
 {{end}}
 
 {{define "content"}}
+    <div class="alert alert-danger text-center d-none" role="alert" id="login-messages"></div>
+
     <form method="POST" action="" class="w-50 needs-validation " id="login-form" novalidate="novalidate" autocomplete="off">
            
             <h2 class="text-xl font-bold mb-2 text-center">Login</h2> 
@@ -26,6 +28,21 @@
 {{define "js"}}
 
 <script>
+
+    let loginMessages = document.getElementById('login-messages');
+
+    function showError(message) {
+        loginMessages.classList.add('alert-danger');
+        loginMessages.classList.remove('alert-success');
+        loginMessages.textContent = message;
+        loginMessages.classList.remove('d-none');
+    }
+    function showSuccess() {
+        loginMessages.classList.add('alert-success');
+        loginMessages.classList.remove('alert-danger');
+        loginMessages.textContent = 'Login successful!';
+        loginMessages.classList.remove('d-none');
+    }
     function val() {
          this.event.preventDefault();
             this.event.stopPropagation();
@@ -53,6 +70,13 @@
             .then(response => response.json())
             .then(response => {
                 console.log(response);
+                if((response.error) == false) {
+                  localStorage.setItem('token', response.authentication_token.token);  
+                  localStorage.setItem('token_expiry', response.authentication_token.expiry);
+                  showSuccess();
+                } else {
+                    showError(response.message);
+                }
             })
     }
 </script>
