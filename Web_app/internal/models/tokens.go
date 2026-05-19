@@ -41,12 +41,14 @@ func (m *DBModel) InsertToken(token *Token, u User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	stmt := `INSERT INTO tokens (user_id, name, email, token_hash, created_at ,updated_at) VALUES (?, ?, ?, ?, ?, ?)`
+	stmt := `INSERT INTO tokens (user_id, name, email, token_hash, expiry, created_at ,updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	expiryTime := time.Unix(token.Expiry, 0).Format(time.RFC3339)
 	_, err := m.DB.ExecContext(ctx, stmt,
 		token.UserID,
 		u.LastName,
 		u.Email,
 		token.Hash,
+		expiryTime,
 		time.Now(),
 		time.Now(),
 	)
@@ -71,9 +73,9 @@ func (m *DBModel) GetUserForToken(tokenPlainText string) (*User, error) {
 				FROM users
 					INNER JOIN tokens ON users.id = tokens.user_id
 				WHERE 
-					tokens.token_hash = ?
+					tokens.token_hash = ? AND tokens.expiry > ?
 			`
-	err := m.DB.QueryRowContext(ctx, stmt, tokenHash[:]).Scan(
+	err := m.DB.QueryRowContext(ctx, stmt, tokenHash[:], time.Now()).Scan(
 		&user.ID,
 		&user.FirstName,
 		&user.LastName,
