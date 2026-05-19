@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 	"web_app/internal/cards"
 	"web_app/internal/models"
@@ -313,8 +315,44 @@ func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) 
 	_ = app.writeJSON(w, http.StatusOK, payload)
 }
 
+//authenticateToken
+
+func (app *application) authenticateToken(r *http.Request) (*models.User, error) {
+	authorizationHeader := r.Header.Get("Authorization")
+	if authorizationHeader == "" {
+		return nil, errors.New("no authorization header provided")
+	}
+	headerParts := strings.Split(authorizationHeader, " ")
+	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
+		return nil, errors.New("invalid authorization header format")
+	}
+	tokenString := headerParts[1]
+	if len(tokenString) != 26 {
+		return nil, errors.New("invalid token length")
+	}
+	user, err := app.DB.GetUserForToken(tokenString)
+	if err != nil {
+		return nil, errors.New("invalid token")
+	}
+	return user, nil
+}
+
 //checkAuthentication
 
 func (app *application) checkAuthentication(w http.ResponseWriter, r *http.Request) {
-	app.invalidCredentialsResponse(w, r)
+	user, err := app.authenticateToken(r)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.invalidCredentialsResponse(w, r)
+		return
+	}
+
+	//valid user
+	var payload struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+	payload.Error = false
+	payload.Message = fmt.Sprintf("Authenticated user: %s", user.Email)
+	_ = app.writeJSON(w, http.StatusOK, payload)
 }
