@@ -26,6 +26,9 @@ func (app *application) routes() http.Handler {
 	mux.Post("/api/authenticate", app.CreateAuthToken)
 
 	mux.Post("/api/is-authenticated", app.checkAuthentication)
-
+	// Protected routes
+	mux.Route("/api/admin", func(mux chi.Router) {
+		mux.Use(app.authenticate)
+	})
 	return mux
 }
