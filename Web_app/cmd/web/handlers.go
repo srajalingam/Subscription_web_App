@@ -27,7 +27,7 @@ func (app *application) VirtualTerminal(w http.ResponseWriter, r *http.Request) 
 	// 	},
 	// }
 	td := &templateData{}
-	if err := app.renderTemplate(w, r, "terminal", td, "stripe-js"); err != nil {
+	if err := app.renderTemplate(w, r, "terminal", td); err != nil {
 		app.errorLog.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}

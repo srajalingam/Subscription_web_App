@@ -29,6 +29,8 @@ func (app *application) routes() http.Handler {
 	// Protected routes
 	mux.Route("/api/admin", func(mux chi.Router) {
 		mux.Use(app.authenticate)
+
+		mux.Post("/virtual-terminal-succeeded", app.VirtualTerminalPaymentSucceeded)
 	})
 	return mux
 }
