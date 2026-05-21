@@ -420,3 +420,36 @@ func (app *application) VirtualTerminalPaymentSucceeded(w http.ResponseWriter, r
 	}
 	app.writeJSON(w, http.StatusOK, txn)
 }
+
+// SendPasswordResetEmail
+func (app *application) SendPasswordResetEmail(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		Email string `json:"email"`
+	}
+	err := app.readJSON(w, r, &payload)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	var data struct {
+		Link string
+	}
+	data.Link = "https://www.example.com/reset-password?token=abc123"
+
+	//send email
+	err = app.sendEmail("info@yourapp.com", payload.Email, "Password Reset", "password-reset", data)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+	resp.Error = false
+	resp.Message = "Password reset email sent"
+	_ = app.writeJSON(w, http.StatusOK, resp)
+}

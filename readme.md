@@ -42,3 +42,11 @@ soda generate fizz CreateTokensTable CreateTokensTable
 login usename
 admin@example.com
 password
+
+SendMail Package
+go get github.com/xhit/go-simple-mail/v2
+
+mailer configuration
+https://mailtrap.io/settings/api-tokens
+
+get mail host details  from https://mailtrap.io/sandboxes/4650925/settings
