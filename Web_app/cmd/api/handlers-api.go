@@ -10,6 +10,7 @@ import (
 	"time"
 	"web_app/internal/cards"
 	"web_app/internal/models"
+	"web_app/internal/urlsigner"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/stripe/stripe-go/v85"
@@ -433,10 +434,32 @@ func (app *application) SendPasswordResetEmail(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	//check if the email exists in the database
+	_, err = app.DB.GetUserByEmail(payload.Email)
+	if err != nil {
+		var resp struct {
+			Error   bool   `json:"error"`
+			Message string `json:"message"`
+		}
+		resp.Error = true
+		resp.Message = "No user found with that email address"
+		_ = app.writeJSON(w, http.StatusOK, resp)
+		return
+	}
+
+	link := fmt.Sprintf("%s/reset-password?email=%s", app.config.frontend, payload.Email)
+
+	signer := urlsigner.Signer{
+		Secret: []byte(app.config.secretKey),
+	}
+
+	signedLink := signer.GenerateTokenFromString(link)
+
 	var data struct {
 		Link string
 	}
-	data.Link = "https://www.example.com/reset-password?token=abc123"
+
+	data.Link = signedLink
 
 	//send email
 	err = app.sendEmail("info@yourapp.com", payload.Email, "Password Reset", "password-reset", data)
