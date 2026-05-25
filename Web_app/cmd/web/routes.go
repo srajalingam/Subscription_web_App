@@ -26,6 +26,9 @@ func (app *application) routes() http.Handler {
 	mux.Get("/login", app.LoginPage)
 	mux.Get("/forgot-password", app.ForgotPasswordPage)
 
+	//reset password
+	mux.Get("/reset-password", app.ShowResetPasswordPage)
+
 	fileServer := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 

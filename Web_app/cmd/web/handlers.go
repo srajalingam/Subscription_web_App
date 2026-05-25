@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 	"web_app/internal/cards"
 	"web_app/internal/models"
+	"web_app/internal/urlsigner"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -331,5 +333,21 @@ func (app *application) ForgotPasswordPage(w http.ResponseWriter, r *http.Reques
 	if err := app.renderTemplate(w, r, "forgot-password", &templateData{}); err != nil {
 		app.errorLog.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+// ShowResetPasswordPage
+func (app *application) ShowResetPasswordPage(w http.ResponseWriter, r *http.Request) {
+	theURL := r.RequestURI
+	app.infoLog.Printf("Requested URL: %s", theURL)
+	testURL := fmt.Sprintf("%s%s", app.config.frontend, theURL)
+	signer := urlsigner.Signer{
+		Secret: []byte(app.config.secretKey),
+	}
+	valid := signer.VerifyToken(testURL)
+	if valid {
+		w.Write([]byte("valid"))
+	} else {
+		w.Write([]byte("invalid"))
 	}
 }

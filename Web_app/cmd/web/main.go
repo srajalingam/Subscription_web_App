@@ -33,6 +33,8 @@ type config struct {
 		secretKey string
 		key       string
 	}
+	secretKey string
+	frontend  string
 }
 
 type application struct {
@@ -60,6 +62,11 @@ func (app *application) serve() error {
 }
 
 func main() {
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Println("No .env file found")
+	}
 	gob.Register(TransactionData{})
 	// Initialize a new instance of the config struct.
 	var cfg config
@@ -67,13 +74,10 @@ func main() {
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 	flag.StringVar(&cfg.db.dsn, "dsn", os.Getenv("DATABASE_DSN"), "MySQL DSN")
 	flag.StringVar(&cfg.api, "api", "http://localhost:4001", "API server URL")
+	flag.StringVar(&cfg.secretKey, "secret-key", os.Getenv("SECRET_KEY"), "Secret key for URL signing")
+	flag.StringVar(&cfg.frontend, "frontend", os.Getenv("FRONTEND_URL"), "Frontend server URL")
 	log.Println(os.Getenv("DATABASE_DSN"))
 	flag.Parse()
-
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("No .env file found")
-	}
 
 	cfg.stripe.key = os.Getenv("STRIPE_PUBLISHABLE_KEY")
 
