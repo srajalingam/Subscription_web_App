@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/stripe/stripe-go/v85"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type stripePayload struct {
@@ -462,7 +463,7 @@ func (app *application) SendPasswordResetEmail(w http.ResponseWriter, r *http.Re
 	data.Link = signedLink
 
 	//send email
-	err = app.sendEmail("info@yourapp.com", payload.Email, "Password Reset", "password-reset", data)
+	err = app.sendEmail("raja@subscription.com", payload.Email, "Password Reset", "password-reset", data)
 	if err != nil {
 		app.errorLog.Println(err)
 		app.badRequestResponse(w, r, err)
@@ -475,4 +476,44 @@ func (app *application) SendPasswordResetEmail(w http.ResponseWriter, r *http.Re
 	resp.Error = false
 	resp.Message = "Password reset email sent"
 	_ = app.writeJSON(w, http.StatusOK, resp)
+}
+
+// ResetPassword
+func (app *application) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	err := app.readJSON(w, r, &payload)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+	user, err := app.DB.GetUserByEmail(payload.Email)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+	newHash, err := bcrypt.GenerateFromPassword([]byte(payload.Password), 12)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+	err = app.DB.UpdateUserPassword(user, string(newHash))
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+	resp.Error = false
+	resp.Message = "Password reset successfully"
+	_ = app.writeJSON(w, http.StatusOK, resp)
+
 }

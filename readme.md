@@ -41,7 +41,7 @@ soda generate fizz CreateTokensTable CreateTokensTable
 
 login usename
 admin@example.com
-password
+123456
 
 SendMail Package
 go get github.com/xhit/go-simple-mail/v2

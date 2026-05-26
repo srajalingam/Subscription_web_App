@@ -345,9 +345,24 @@ func (app *application) ShowResetPasswordPage(w http.ResponseWriter, r *http.Req
 		Secret: []byte(app.config.secretKey),
 	}
 	valid := signer.VerifyToken(testURL)
-	if valid {
-		w.Write([]byte("valid"))
-	} else {
-		w.Write([]byte("invalid"))
+	// if valid {
+	// 	w.Write([]byte("valid"))
+	// } else {
+	// 	w.Write([]byte("invalid"))
+	// }
+	if !valid {
+		app.errorLog.Printf("Invalid token for URL: %s", testURL)
+		return
+	}
+	data := make(map[string]interface{})
+	data["email"] = r.URL.Query().Get("email")
+	fmt.Println("Email from query parameter:", data["email"])
+	td := &templateData{
+		Data: data,
+		API:  app.config.api, // Add the API URL to the template context
+	}
+	if err := app.renderTemplate(w, r, "reset-password", td); err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
