@@ -354,6 +354,14 @@ func (app *application) ShowResetPasswordPage(w http.ResponseWriter, r *http.Req
 		app.errorLog.Printf("Invalid token for URL: %s", testURL)
 		return
 	}
+
+	//not expired
+	expired := signer.IsTokenExpired(testURL, 15)
+	if expired {
+		app.errorLog.Printf("Token expired for URL: %s", testURL)
+		return
+	}
+
 	data := make(map[string]interface{})
 	data["email"] = r.URL.Query().Get("email")
 	fmt.Println("Email from query parameter:", data["email"])
