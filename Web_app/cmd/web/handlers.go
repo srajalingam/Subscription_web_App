@@ -374,3 +374,19 @@ func (app *application) ShowResetPasswordPage(w http.ResponseWriter, r *http.Req
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
+
+// AllSales
+func (app *application) AllSales(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "all-sales", &templateData{}); err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+// AllSubscriptions
+func (app *application) AllSubscriptions(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "all-subscriptions", &templateData{}); err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
