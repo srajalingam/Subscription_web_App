@@ -39,6 +39,23 @@
                 <li class="nav-item  d-none" id="virtual-terminal-link" >
                     <a class="nav-link" href="/virtual-terminal">Virtual Terminal</a>
                 </li>
+                <li class="nav-item dropdown d-none" id="admin-dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Admin
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/admin/virtual-terminal">Virtual Terminal</a>
+                        <a class="dropdown-item" href="/admin/all-sales">All Sales</a>
+                        <a class="dropdown-item" href="/admin/all-subscriptions">All Subscriptions</a>
+                        <a class="dropdown-item" onclick="logout()" href="#!">Logout</a>
+
+                    </div>
+                </li>
+                </ul>
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item d-none" id="logout-link">
+                        <a class="nav-link" onclick="logout()" href="#!">Logout</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item d-none" id="login-link">
@@ -59,15 +76,20 @@
             <script>
                 let logginLink = document.getElementById("login-link");
                 let virtualTerminalLink = document.getElementById("virtual-terminal-link");
+                let adminDropdown = document.getElementById("admin-dropdown");
+                let logoutLink = document.getElementById("logout-link");
+                let loginLink = document.getElementById("login-link");
 
                 document.addEventListener("DOMContentLoaded", function() {
                     if(localStorage.getItem("token")!== null) {
-                        logginLink.innerHTML = '<a class="nav-link" onclick="logout()" href="#!">Logout</a>';
-                        virtualTerminalLink.classList.remove("d-none");
+                        {{/* logginLink.innerHTML = '<a class="nav-link" onclick="logout()" href="#!">Logout</a>';
+                        virtualTerminalLink.classList.remove("d-none"); */}}
+                        adminDropdown.classList.remove("d-none");
+                        logoutLink.classList.remove("d-none");
                     } else {
-                        logginLink.innerHTML = '<a class="nav-link" href="/login">Login</a>';
+                        {{/* logginLink.innerHTML = '<a class="nav-link" href="/login">Login</a>'; */}}
+                        loginLink.classList.remove("d-none");
                     }
-                    logginLink.classList.remove("d-none");
                 });
                 function logout() {
                     localStorage.removeItem("token");
@@ -95,6 +117,7 @@
                                    console.log('error', result.message);
                                    location.href = "/login";
                                 }else{
+                                    
                                     console.log('success', result.message);
                                 }
                             })
