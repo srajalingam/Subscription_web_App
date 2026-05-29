@@ -517,3 +517,14 @@ func (app *application) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	_ = app.writeJSON(w, http.StatusOK, resp)
 
 }
+
+// AllSales
+func (app *application) AllSales(w http.ResponseWriter, r *http.Request) {
+	allSales, err := app.DB.GetAllOrders()
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+	_ = app.writeJSON(w, http.StatusOK, allSales)
+}
