@@ -4,9 +4,51 @@
 
 {{define "content"}}
     <h1>All Sales</h1>
+    <hr>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-striped" id="salesTable">
+                <thead>
+                    <tr>
+                        <th>Transaction</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   
+                </tbody>
+            </table>
+        </div>
 {{end}}
 
 {{define "js"}}
     <script>
+        let token = localStorage.getItem("token");
+        let tbody = document.querySelector("#salesTable tbody");
+        const requestObtions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+                "accept": "application/json",
+            }
+        }
+        fetch("{{.API}}/api/admin/all-sales", requestObtions)
+            .then(res => res.json())
+            .then((data)=>{
+                data.forEach(sale => {
+                    let tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td><a href="/admin/sales/${sale.id}">Order ${sale.id}</a></td>
+                        <td>${sale.customer.first_name},${sale.customer.last_name}</td>
+                        <td>${sale.widget.name}</td>
+                        <td>${sale.amount}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            })
+            .catch(err => console.log(err));    
     </script>
 {{end}}
