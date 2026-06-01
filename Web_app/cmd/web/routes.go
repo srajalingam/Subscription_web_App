@@ -31,8 +31,13 @@ func (app *application) routes() http.Handler {
 
 	//admin routes
 
-	mux.Get("/admin/all-sales", app.AllSales)
-	mux.Get("/admin/all-subscriptions", app.AllSubscriptions)
+	// mux.Get("/admin/all-sales", app.AllSales)
+	// mux.Get("/admin/all-subscriptions", app.AllSubscriptions)
+	mux.Route("/admin", func(mux chi.Router) {
+		mux.Get("/all-sales", app.AllSales)
+		mux.Get("/all-subscriptions", app.AllSubscriptions)
+		mux.Get("/sales/{id}", app.ShowSale)
+	})
 
 	fileServer := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))

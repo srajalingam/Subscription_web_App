@@ -38,17 +38,30 @@
         fetch("{{.API}}/api/admin/all-sales", requestObtions)
             .then(res => res.json())
             .then((data)=>{
-                data.forEach(sale => {
+                if(data){
+                    data.forEach(sale => {
+                        let tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td><a href="/admin/sales/${sale.id}">Order ${sale.id}</a></td>
+                            <td>${sale.customer.first_name},${sale.customer.last_name}</td>
+                            <td>${sale.widget.name}</td>
+                            <td>${formatCurrency(sale.amount)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }else{
                     let tr = document.createElement("tr");
                     tr.innerHTML = `
-                        <td><a href="/admin/sales/${sale.id}">Order ${sale.id}</a></td>
-                        <td>${sale.customer.first_name},${sale.customer.last_name}</td>
-                        <td>${sale.widget.name}</td>
-                        <td>${sale.amount}</td>
+                        <td colspan="4" class="text-center">No sales found</td>
                     `;
                     tbody.appendChild(tr);
-                });
+                }
             })
             .catch(err => console.log(err));    
+
+            function formatCurrency(amount) {
+               let c = parseFloat(amount);
+                return c.toLocaleString('en-CA', { style: 'currency', currency: 'CAD' });
+            }
     </script>
 {{end}}

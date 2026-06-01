@@ -528,3 +528,17 @@ func (app *application) AllSales(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = app.writeJSON(w, http.StatusOK, allSales)
 }
+
+// GetSaleByID
+func (app *application) GetSaleByID(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	saleID, err := strconv.Atoi(id)
+
+	order, err := app.DB.GetOrderByID(saleID)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+	_ = app.writeJSON(w, http.StatusOK, order)
+}

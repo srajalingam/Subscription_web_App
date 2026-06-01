@@ -1,0 +1,59 @@
+{{template "base" .}}
+
+{{define "title"}}Sale Details{{end}}
+
+{{define "content"}}
+    <h1>Sale Details</h1>
+    <hr>
+    <div class="row">
+        <div class="col-md-12">
+           <strong>Order No:</strong> <span id="order-no"></span><br>
+            <strong>Customer:</strong> <span id="customer"></span><br>
+            <strong>Product:</strong> <span id="product"></span><br>
+            <strong>Quantity:</strong> <span id="quantity"></span><br>
+            <strong>Total Sale:</strong> <span id="total-sale"></span><br>
+        </div>
+    </div>
+    <hr>
+    <a href="/admin/all-sales" class="btn btn-info">Back to All Sales</a>
+    <a href="#!" class="btn btn-warning">Refund Order</a>
+{{end}}
+
+{{define "js"}}
+      <script>
+        let token = localStorage.getItem("token");
+        let id = window.location.pathname.split("/").pop();
+        const requestObtions = {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+                "accept": "application/json",
+            }
+        }
+        fetch("{{.API}}/api/admin/get-sale/" + id, requestObtions)
+            .then(res => res.json())
+            .then((data)=>{
+                console.log(data);
+                if(data){
+                    document.querySelector("#order-no").textContent = "Order " + data.id;
+                    document.querySelector("#customer").textContent = data.customer.first_name + " " + data.customer.last_name;
+                    document.querySelector("#product").textContent = data.widget.name;
+                    document.querySelector("#quantity").textContent = data.quantity;
+                    document.querySelector("#total-sale").textContent = formatCurrency(data.amount);
+                }else{
+                    document.querySelector("#order-no").textContent = "N/A";
+                    document.querySelector("#customer").textContent = "N/A";
+                    document.querySelector("#product").textContent = "N/A";
+                    document.querySelector("#quantity").textContent = "N/A";
+                    document.querySelector("#total-sale").textContent = "N/A";
+                }
+            })
+            .catch(err => console.log(err));    
+
+            function formatCurrency(amount) {
+               let c = parseFloat(amount);
+                return c.toLocaleString('en-CA', { style: 'currency', currency: 'CAD' });
+            }
+    </script>
+{{end}}

@@ -390,3 +390,11 @@ func (app *application) AllSubscriptions(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
+
+// ShowSale
+func (app *application) ShowSale(w http.ResponseWriter, r *http.Request) {
+	if err := app.renderTemplate(w, r, "sale", &templateData{}); err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
