@@ -4,9 +4,66 @@
 
 {{define "content"}}
     <h1>All Subscriptions</h1>
+    <hr>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Subscription ID</th>
+                        <th>Customer Name</th>
+                        <th>Widget Name</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="subscriptions-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <hr>
 {{end}}
 
 {{define "js"}}
     <script>
+        let token = localStorage.getItem("token");
+        let tbody = document.querySelector("#subscriptions-table-body");
+        const requestObtions = {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+                "accept": "application/json",
+            }
+        }
+        fetch("{{.API}}/api/admin/all-subscriptions", requestObtions)
+            .then(res => res.json())
+            .then((data)=>{
+                if(data){
+                    data.forEach(subscription => {
+                        let tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td><a href="/admin/subscriptions/${subscription.id}">Subscription ${subscription.id}</a></td>
+                            <td>${subscription.customer.first_name},${subscription.customer.last_name}</td>
+                            <td>${subscription.widget.name}</td>
+                            <td>${formatCurrency(subscription.amount)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }else{
+                    let tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td colspan="4" class="text-center">No subscriptions found</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            })
+            .catch(err => console.log(err));    
+
+            function formatCurrency(amount) {
+               let c = parseFloat(amount);
+                return c.toLocaleString('en-CA', { style: 'currency', currency: 'CAD' });
+            }
     </script>
 {{end}}

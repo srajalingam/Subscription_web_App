@@ -393,7 +393,25 @@ func (app *application) AllSubscriptions(w http.ResponseWriter, r *http.Request)
 
 // ShowSale
 func (app *application) ShowSale(w http.ResponseWriter, r *http.Request) {
-	if err := app.renderTemplate(w, r, "sale", &templateData{}); err != nil {
+	stringMap := make(map[string]string)
+	stringMap["title"] = "Sale Details"
+	stringMap["cancel"] = "/admin/all-sales"
+	if err := app.renderTemplate(w, r, "sale", &templateData{
+		StringMap: stringMap,
+	}); err != nil {
+		app.errorLog.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+// ShowSubscription
+func (app *application) ShowSubscription(w http.ResponseWriter, r *http.Request) {
+	stringMap := make(map[string]string)
+	stringMap["title"] = "Subscription Details"
+	stringMap["cancel"] = "/admin/all-subscriptions"
+	if err := app.renderTemplate(w, r, "sale", &templateData{
+		StringMap: stringMap,
+	}); err != nil {
 		app.errorLog.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}

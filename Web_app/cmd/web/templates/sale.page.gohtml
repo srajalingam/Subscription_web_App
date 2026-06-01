@@ -1,9 +1,11 @@
 {{template "base" .}}
 
-{{define "title"}}Sale Details{{end}}
+{{define "title"}}
+    {{index .StringMap "title"}}
+{{end}}
 
 {{define "content"}}
-    <h1>Sale Details</h1>
+    <h1>{{index .StringMap "title"}}</h1>
     <hr>
     <div class="row">
         <div class="col-md-12">
@@ -15,7 +17,7 @@
         </div>
     </div>
     <hr>
-    <a href="/admin/all-sales" class="btn btn-info">Back to All Sales</a>
+    <a href='{{index .StringMap "cancel"}}' class="btn btn-info">Back to All Sales</a>
     <a href="#!" class="btn btn-warning">Refund Order</a>
 {{end}}
 

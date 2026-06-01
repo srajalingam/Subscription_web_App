@@ -542,3 +542,14 @@ func (app *application) GetSaleByID(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = app.writeJSON(w, http.StatusOK, order)
 }
+
+// AllSubscriptions
+func (app *application) AllSubscriptions(w http.ResponseWriter, r *http.Request) {
+	subscriptions, err := app.DB.GetAllSubscriptions()
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+	_ = app.writeJSON(w, http.StatusOK, subscriptions)
+}
