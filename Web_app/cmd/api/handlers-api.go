@@ -553,3 +553,41 @@ func (app *application) AllSubscriptions(w http.ResponseWriter, r *http.Request)
 	}
 	_ = app.writeJSON(w, http.StatusOK, subscriptions)
 }
+
+// RefundCharge
+func (app *application) RefundCharge(w http.ResponseWriter, r *http.Request) {
+	var chargeToRefund struct {
+		ID            string `json:"id"`
+		PaymentIntent string `json:"payment_intent"`
+		Amount        int64  `json:"amount"`
+		Currency      string `json:"currency"`
+	}
+
+	err := app.readJSON(w, r, &chargeToRefund)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	//validate the charge ID and payment intent
+	card := cards.Card{
+		Secret:   app.config.stripe.secretKey,
+		Key:      app.config.stripe.key,
+		Currency: chargeToRefund.Currency,
+	}
+
+	err = card.RefundPayment(chargeToRefund.PaymentIntent, chargeToRefund.Amount)
+	if err != nil {
+		app.errorLog.Println(err)
+		app.badRequestResponse(w, r, err)
+		return
+	}
+	var resp struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+	resp.Error = false
+	resp.Message = "Charge refunded successfully"
+	_ = app.writeJSON(w, http.StatusOK, resp)
+}

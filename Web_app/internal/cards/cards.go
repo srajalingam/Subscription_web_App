@@ -5,6 +5,7 @@ import (
 	"github.com/stripe/stripe-go/v85/customer"
 	paymentintent "github.com/stripe/stripe-go/v85/paymentintent"
 	PaymentMethod "github.com/stripe/stripe-go/v85/paymentmethod"
+	"github.com/stripe/stripe-go/v85/refund"
 	"github.com/stripe/stripe-go/v85/subscription"
 )
 
@@ -125,6 +126,23 @@ func (c *Card) CreateCustomer(pm, email string) (*stripe.Customer, error) {
 		return nil, err
 	}
 	return customer, nil
+}
+
+// Refund a payment
+func (c *Card) RefundPayment(paymentIntentId string, amount int64) error {
+	stripe.Key = c.Secret
+	amountToBeRefunded := int64(amount)
+
+	refundParams := &stripe.RefundParams{
+		Amount:        &amountToBeRefunded,
+		PaymentIntent: &paymentIntentId,
+	}
+	_, err := refund.New(refundParams)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func cardErrorMessage(code stripe.ErrorCode) string {
