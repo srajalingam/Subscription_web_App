@@ -54,3 +54,6 @@ get mail host details  from https://mailtrap.io/sandboxes/4650925/settings
 for signed email
 https://github.com/bwmarrin/go-alone
           go get github.com/bwmarrin/go-alone
+
+
+https://sweetalert2.github.io/#download

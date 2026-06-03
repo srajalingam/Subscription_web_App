@@ -18,44 +18,96 @@
     </div>
     <hr>
     <a href='{{index .StringMap "cancel"}}' class="btn btn-info">Back to All Sales</a>
-    <a href="#!" class="btn btn-warning">Refund Order</a>
+    <a href="#!" class="btn btn-warning" id="refund-btn">Refund Order</a>
+
+    <input type="hidden" id="pi" value=""/>
+    <input type="hidden" id="charge-amount" value=""/>
+    <input type="hidden" id="currency" value=""/>
 {{end}}
 
 {{define "js"}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
       <script>
         let token = localStorage.getItem("token");
         let id = window.location.pathname.split("/").pop();
-        const requestObtions = {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token,
-                "accept": "application/json",
-            }
-        }
-        fetch("{{.API}}/api/admin/get-sale/" + id, requestObtions)
-            .then(res => res.json())
-            .then((data)=>{
-                console.log(data);
-                if(data){
-                    document.querySelector("#order-no").textContent = "Order " + data.id;
-                    document.querySelector("#customer").textContent = data.customer.first_name + " " + data.customer.last_name;
-                    document.querySelector("#product").textContent = data.widget.name;
-                    document.querySelector("#quantity").textContent = data.quantity;
-                    document.querySelector("#total-sale").textContent = formatCurrency(data.amount);
-                }else{
-                    document.querySelector("#order-no").textContent = "N/A";
-                    document.querySelector("#customer").textContent = "N/A";
-                    document.querySelector("#product").textContent = "N/A";
-                    document.querySelector("#quantity").textContent = "N/A";
-                    document.querySelector("#total-sale").textContent = "N/A";
+        document.addEventListener("DOMContentLoaded", function(){
+            const requestObtions = {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token,
+                    "accept": "application/json",
                 }
-            })
-            .catch(err => console.log(err));    
+            }
+            fetch("{{.API}}/api/admin/get-sale/" + id, requestObtions)
+                .then(res => res.json())
+                .then((data)=>{
+                    console.log(data);
+                    if(data){
+                        document.querySelector("#order-no").textContent = "Order " + data.id;
+                        document.querySelector("#customer").textContent = data.customer.first_name + " " + data.customer.last_name;
+                        document.querySelector("#product").textContent = data.widget.name;
+                        document.querySelector("#quantity").textContent = data.quantity;
+                        document.querySelector("#total-sale").textContent = formatCurrency(data.transaction.amount);
+                        document.querySelector("#pi").value = data.transaction.payment_intent;
+                        document.querySelector("#charge-amount").value = data.transaction.amount;
+                        document.querySelector("#currency").value = data.transaction.currency;
 
+                    }else{
+                        document.querySelector("#order-no").textContent = "N/A";
+                        document.querySelector("#customer").textContent = "N/A";
+                        document.querySelector("#product").textContent = "N/A";
+                        document.querySelector("#quantity").textContent = "N/A";
+                        document.querySelector("#total-sale").textContent = "N/A";
+                    }
+                })
+                .catch(err => console.log(err));    
+            });
             function formatCurrency(amount) {
                let c = parseFloat(amount);
                 return c.toLocaleString('en-CA', { style: 'currency', currency: 'CAD' });
             }
+
+            var refundBtn = document.querySelector("#refund-btn");
+            refundBtn.addEventListener("click", function(){
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, refund it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        let payload = {
+                            pi: document.querySelector("#pi").value,
+                            amount: parseInt(document.querySelector("#charge-amount").value),
+                            currency: document.getElementById("currency").value,
+                            id: parseInt(id)
+                        }
+                        const requestOptions = {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": "Bearer " + token,
+                                "accept": "application/json",
+                            },
+                            body: JSON.stringify(payload)
+                        };
+                        fetch("{{.API}}/api/admin/refund", requestOptions)
+                            .then(res => res.json())
+                            .then((data) => {
+                                console.log(data);
+                                Swal.fire(
+                                    "Refunded!",
+                                    "The order has been refunded.",
+                                    "success"
+                                );
+                            })
+                            .catch(err => console.log(err));
+                    }
+                });
+            });
     </script>
 {{end}}

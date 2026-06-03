@@ -557,13 +557,14 @@ func (app *application) AllSubscriptions(w http.ResponseWriter, r *http.Request)
 // RefundCharge
 func (app *application) RefundCharge(w http.ResponseWriter, r *http.Request) {
 	var chargeToRefund struct {
-		ID            string `json:"id"`
-		PaymentIntent string `json:"payment_intent"`
+		ID            int    `json:"id"`
+		PaymentIntent string `json:"pi"`
 		Amount        int64  `json:"amount"`
 		Currency      string `json:"currency"`
 	}
 
 	err := app.readJSON(w, r, &chargeToRefund)
+	fmt.Println("Refund request:", chargeToRefund)
 	if err != nil {
 		app.errorLog.Println(err)
 		app.badRequestResponse(w, r, err)
