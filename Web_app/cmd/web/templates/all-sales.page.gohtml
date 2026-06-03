@@ -14,6 +14,7 @@
                         <th>Customer</th>
                         <th>Product</th>
                         <th>Amount</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,6 +40,7 @@
             .then(res => res.json())
             .then((data)=>{
                 if(data){
+                    console.log(data);
                     data.forEach(sale => {
                         let tr = document.createElement("tr");
                         tr.innerHTML = `
@@ -46,13 +48,16 @@
                             <td>${sale.customer.first_name},${sale.customer.last_name}</td>
                             <td>${sale.widget.name}</td>
                             <td>${formatCurrency(sale.amount)}</td>
+                            <td>
+                                ${sale.status_id != 1 ? '<span class="badge bg-danger">Refunded</span>' : '<span class="badge bg-success">Charged</span>'}
+                            </td>
                         `;
                         tbody.appendChild(tr);
                     });
                 }else{
                     let tr = document.createElement("tr");
                     tr.innerHTML = `
-                        <td colspan="4" class="text-center">No sales found</td>
+                        <td colspan="5" class="text-center">No sales found</td>
                     `;
                     tbody.appendChild(tr);
                 }
