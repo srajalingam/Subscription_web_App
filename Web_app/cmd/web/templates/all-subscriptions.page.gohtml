@@ -41,6 +41,7 @@
             .then(res => res.json())
             .then((data)=>{
                 if(data){
+                    console.log(data);
                     data.forEach(subscription => {
                         let tr = document.createElement("tr");
                         tr.innerHTML = `
@@ -48,13 +49,16 @@
                             <td>${subscription.customer.first_name},${subscription.customer.last_name}</td>
                             <td>${subscription.widget.name}</td>
                             <td>${formatCurrency(subscription.amount)}</td>
+                            <td>
+                                ${subscription.status_id != 1 ? '<span class="badge bg-danger">Cancelled</span>' : '<span class="badge bg-success">Active</span>'}
+                            </td>
                         `;
                         tbody.appendChild(tr);
                     });
                 }else{
                     let tr = document.createElement("tr");
                     tr.innerHTML = `
-                        <td colspan="4" class="text-center">No subscriptions found</td>
+                        <td colspan="5" class="text-center">No subscriptions found</td>
                     `;
                     tbody.appendChild(tr);
                 }
